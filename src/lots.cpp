@@ -294,7 +294,7 @@ void lots_t::setupRoute(std::string routelist,
 
 vector<lot_t> lots_t::wb7Filter(vector<lot_t> alllots,
                                 vector<lot_t> &dontcare,
-                                route_t routes)
+                                route_t &routes)
 {
     vector<lot_t> lots;
     foreach (alllots, i) {
@@ -374,7 +374,7 @@ vector<lot_t> lots_t::queueTimeAndQueue(vector<lot_t> lots,
                                         vector<lot_t> &faulty_lots,
                                         vector<lot_t> &dontcare,
                                         da_stations_t &das,
-                                        route_t routes)
+                                        route_t &routes)
 {
     int retval = 0;
     string err_msg;

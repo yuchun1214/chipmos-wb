@@ -47,12 +47,15 @@ class route_t
 {
 private:
     /// route_name map to its array of stations
-    std::map<std::string, std::vector<station_t> > _routes;
+    std::vector<station_t *> __all_stations;
+    std::map<std::string, std::vector<station_t *> > _routes;
 
     std::map<std::string, std::set<int> > _beforeWB;
 
     /// route_name map to station map to the queue_time
     std::map<int, std::map<int, double> > _queue_time;
+
+    std::map<std::string, std::map<int, int> > _oper_index;
 
     // std::set use R-B tree, which provides optimal time complexity on
     // searching data.
@@ -82,11 +85,11 @@ private:
      * @param nopts : number of optional station
      * @param ... : the optional station
      */
-    std::vector<station_t> setupBeforeStation(std::string routename,
-                                              bool remove,
-                                              int nstations,
-                                              int nopts,
-                                              ...);
+    void setupBeforeStation(std::string routename,
+                            bool remove,
+                            int nstations,
+                            int nopts,
+                            ...);
 
     /**
      * findStationIdx () - locate the oper in the route
@@ -134,6 +137,8 @@ public:
      */
     void setQueueTime(csv_t queue_time_df);
 
+    double getQueueTime(int prev_oper, int next_oper);
+
     void setCureTime(csv_t remark, csv_t cure_time);
 
     int getCureTime(std::string process_id, int oper);
@@ -178,6 +183,8 @@ public:
      *          -1 : error
      */
     int calculateQueueTime(lot_t &lot);
+
+    ~route_t();
 };
 
 inline int route_t::getCureTime(std::string process_id, int oper)
@@ -190,6 +197,15 @@ inline int route_t::getCureTime(std::string process_id, int oper)
         printf("Warning : unable time to find cure time, return 0");
 #endif
         return 0;
+    }
+}
+
+inline double route_t::getQueueTime(int prev_oper, int next_oper)
+{
+    if (_queue_time.count(prev_oper) && _queue_time.count(next_oper)) {
+        return _queue_time[prev_oper][next_oper];
+    } else {
+        return -1;
     }
 }
 

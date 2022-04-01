@@ -157,3 +157,8 @@ time_t timeConverter::operator()(std::string text)
     }
     return time - _base_time;
 }
+
+time_t timeConverter::operator-(timeConverter tc)
+{
+    return tc._base_time - _base_time;
+}

@@ -179,7 +179,7 @@ protected:
      */
     std::vector<lot_t> wb7Filter(std::vector<lot_t> alllots,
                                  std::vector<lot_t> &dontcare,
-                                 route_t routes);
+                                 route_t &routes);
 
     /**
      * queueTimeAndQueue () - sum the queue time for each lot.
@@ -201,7 +201,7 @@ protected:
                                          std::vector<lot_t> &faulty_lots,
                                          std::vector<lot_t> &dontcare,
                                          da_stations_t &das,
-                                         route_t routes);
+                                         route_t &routes);
 
     /**
      * setCanRunModels () - setup can run models

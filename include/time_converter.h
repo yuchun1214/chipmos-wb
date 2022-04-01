@@ -138,6 +138,13 @@ public:
      * @return time_t value relative to base_time
      */
     time_t operator()(std::string text);
+
+    /**
+     * @brief Overloads subtraction operator
+     * @param tc : a nother timeConverter object
+     * @return time_t value which is the result of subtraction of two time
+     */
+    time_t operator-(timeConverter tc);
 };
 
 #endif

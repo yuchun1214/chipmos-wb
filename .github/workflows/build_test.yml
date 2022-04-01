@@ -6,6 +6,7 @@ jobs:
         strategy:
             matrix:
                 os : ["ubuntu-latest", "macos-latest", "windows-latest"]
+            fail-fast : false
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v2
@@ -24,5 +25,6 @@ jobs:
                 cmake --build build --parallel
               if: runner.os != 'Windows'
             - name: Test
+
               run: |
                 cd build && ./test    

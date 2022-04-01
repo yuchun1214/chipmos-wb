@@ -54,6 +54,7 @@ public:
             route->setRoute(*__routelist);
             route->setCureTime(*__process_find_lot_size_and_entity,
                                *__cure_time);
+            route->setQueueTime(*__queeu_time);
         }
     }
 

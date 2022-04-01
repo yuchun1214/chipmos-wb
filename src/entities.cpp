@@ -101,7 +101,7 @@ entities_t::entities_t(std::map<std::string, std::string> arguments)
 void entities_t::setTime(string time)
 {
     if (time.length()) {
-        _time = timeConverter(time);
+        _time = timeConverter()(time);
     } else
         _time = 0;
 }

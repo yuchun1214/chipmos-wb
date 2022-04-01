@@ -71,11 +71,6 @@ std::vector<T> operator+=(std::vector<T> &op1, std::vector<T> op2)
     return op1;
 }
 
-/**
- * timeConverter() - convert text to time_t
- */
-time_t timeConverter(std::string text);
-
 void stringToLower(char *text);
 void stringToUpper(char *text);
 

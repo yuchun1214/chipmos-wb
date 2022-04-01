@@ -13,6 +13,7 @@
 #include "include/csv.h"
 #include "include/infra.h"
 #include "include/job.h"
+#include "include/time_converter.h"
 
 #define ERROR_TABLE                                                         \
     X(SUCCESS, = 0x00, "SUCCESS")                                           \
@@ -1042,10 +1043,13 @@ inline void lot_t::setDAQueueTime(std::string base_time)
     for (i = 0; i < NUMBER_OF_DA_STATIONS; ++i)
         if (DA_STATIONS[i] == oper())
             break;
-    _da_queue_time =
-        (isSubLot() && mvin() && (i != NUMBER_OF_DA_STATIONS))
-            ? (timeConverter(_wlot_last_trans) - timeConverter(base_time)) /
-                  60.0
-            : 0;
+    // _da_queue_time =
+    //     (isSubLot() && mvin() && (i != NUMBER_OF_DA_STATIONS))
+    //         ? (timeConverter(_wlot_last_trans) - timeConverter(base_time)) /
+    //               60.0
+    //         : 0;
+
+    _da_queue_time = (isSubLot() && mvin() && i != NUMBER_OF_DA_STATIONS) *
+                     (timeConverter(base_time)(_wlot_last_trans)) / 60.0;
 }
 #endif

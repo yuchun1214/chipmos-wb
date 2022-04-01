@@ -65,6 +65,21 @@ TEST_P(test_string_to_time_t, test_set_base_time)
     EXPECT_EQ(cs.ans, tc._base_time);
 }
 
+TEST_P(test_string_to_time_t, test_time_difference_operator)
+{
+    auto cs = GetParam();
+    timeConverter tc_base(cs.base_time);
+    timeConverter tc_input(cs.input);
+    EXPECT_EQ(cs.difference, tc_base - tc_input);
+}
+
+TEST_P(test_string_to_time_t, test_time_difference_operator2)
+{
+    auto cs = GetParam();
+    EXPECT_EQ(cs.difference,
+              timeConverter(cs.base_time) - timeConverter(cs.input));
+}
+
 
 INSTANTIATE_TEST_SUITE_P(
     string_to_time,
