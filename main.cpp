@@ -65,6 +65,7 @@ int main(int argc, const char **argv)
 
     if (parser->is_set("-h")) {
         parser->print_arg_description();
+        exit(0);
     }
 
     string file_name = parser->get_argument_value("--file");

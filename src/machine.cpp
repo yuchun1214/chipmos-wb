@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdexcept>
 
 #include "include/job_base.h"
 #include "include/linked_list.h"
@@ -189,9 +190,18 @@ void scheduling(machine_t *machine,
             // printf("Machine location :%s ->
             // %s\n",machine->base.machine_no.data.text,
             // machine->location.data.text); fflush(stdout);
-            tr_time = transportation_time_table.at(std::make_pair(
-                std::string((char *) (job->location.data.text)),
-                std::string((char *) (machine->location.data.text))));
+            try {
+                tr_time = transportation_time_table.at(std::make_pair(
+                    std::string((char *) (job->location.data.text)),
+                    std::string((char *) (machine->location.data.text))));
+            } catch (std::out_of_range &e) {
+                printf("Machine number : %s\n",
+                       machine->base.machine_no.data.text);
+                printf("Unable to find transportation pair %s -> %s",
+                       job->location.data.text, machine->location.data.text);
+                exit(EXIT_FAILURE);
+            }
+
             total_transportation_time += tr_time;
         }
 

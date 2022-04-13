@@ -36,11 +36,13 @@ public:
     lot_t prepareTestObject(struct queue_time_test_case_t cs)
     {
         lot_t lot;
+        lot._process_id = cs.process_id;
         lot._mvin = lot.tmp_mvin = cs.mvin;
         lot._is_sub_lot = cs.is_sub_lot;
         lot.tmp_oper = lot._oper = cs.oper;
         lot._route = cs.route_name;
         lot._queue_time = 0;
+        lot._finish_traversal = false;
         return lot;
     }
 };
@@ -69,9 +71,31 @@ TEST_P(test_calculate_queue_time_t, lot_queue_time)
 INSTANTIATE_TEST_SUITE_P(
     test_queue_time,
     test_calculate_queue_time_t,
-    testing::Values(queue_time_test_case_t{"BGA140"s, "", 2050, true, false, 0,
-                                           TRAVERSE_DA_UNARRIVED},
-                    queue_time_test_case_t{
-                        "BGA140"s, "", 2070, true, true, 395,
-                        TRAVERSE_FINISHED | TRAVERSE_DA_MVIN}));
+    testing::Values(
+        queue_time_test_case_t{"BGA140"s, "", 2050, true, false, 0,
+                               TRAVERSE_DA_UNARRIVED},
+        queue_time_test_case_t{"BGA140"s, "", 2070, true, true, 315,
+                               TRAVERSE_DA_MVIN | TRAVERSE_FINISHED},
+        queue_time_test_case_t{"BGA140"s, "0008W999", 2070, true, true, 405,
+                               TRAVERSE_DA_MVIN | TRAVERSE_FINISHED},
+        queue_time_test_case_t{"BGA140"s, "", 2070, true, false, 120,
+                               TRAVERSE_DA_ARRIVED},
+        queue_time_test_case_t{"BGA140"s, "", 2080, true, true, 195,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"BGA140"s, "", 2080, false, true, 195,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"BGA140"s, "0008W999", 2080, true, true, 285,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"BGA140"s, "0008W999", 2080, false, true, 285,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"MBGA393"s, "", 2070, false, true, 120,
+                               TRAVERSE_DA_ARRIVED},
+        queue_time_test_case_t{"MBGA393"s, "", 2080, false, true, 195,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"MBGA393"s, "", 2200, false, true, 0,
+                               TRAVERSE_FINISHED},
+        queue_time_test_case_t{"MBGA393"s, "", 2200, true, true, 600,
+                               TRAVERSE_DA_UNARRIVED},
+        queue_time_test_case_t{"MBGA393"s, "", 2130, true, true, 270,
+                               TRAVERSE_DA_MVIN | TRAVERSE_FINISHED}));
 }  // namespace route_queue_time

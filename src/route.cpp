@@ -353,7 +353,7 @@ int route_t::calculateQueueTime(lot_t &lot)
     //
     // in this condition, idx need to plus 1, the lot start from next station
     if (_wb_stations.count(lot.tmp_oper) == 1) {
-        if (lot.tmp_mvin) {        // if lot is in WB an has moved in,
+        if (lot.tmp_mvin) {        // if lot is in WB and has moved in,
             idx += 1;              // move to next station
             lot.tmp_mvin = false;  // mvin = false
         } else {                   // lot is waiting at WB station
@@ -365,13 +365,19 @@ int route_t::calculateQueueTime(lot_t &lot)
     // check if lot is in DA
     // if lot is in DA,
     if (_da_stations.count(lot.tmp_oper) == 1) {  // lot is in DA
-        if (lot.tmp_mvin &&
-            lot.isSubLot()) {  // lot is in DA and mvin and which is sublot
-            idx += 1;          // advance
+        if (lot.tmp_mvin && lot.isSubLot()) {
+            // lot is in DA and mvin and which is sublot
             lot.tmp_mvin = false;
+            // add Queue time
+            int next_oper = _routes[routename][++idx]->oper;
+            lot.addQueueTime(getQueueTime(lot.tmp_oper, next_oper),
+                             lot.tmp_oper, next_oper);
             retval |= TRAVERSE_DA_MVIN;
         } else {  // lot is in D/A and hasn't moved in or which still is sublot
-            lot.tmp_oper = _routes[routename][++idx]->oper;  // advance
+            int next_oper = _routes[routename][++idx]->oper;
+            lot.addQueueTime(getQueueTime(lot.tmp_oper, next_oper),
+                             lot.tmp_oper, next_oper);
+            lot.tmp_oper = next_oper;
             return TRAVERSE_DA_ARRIVED;  // advance and dispatch
         }
     }
@@ -391,11 +397,11 @@ int route_t::calculateQueueTime(lot_t &lot)
         oper = _routes[routename][i]->oper;
         if (_queue_time.count(oper)) {  // check if oper is a big station?
             if (prev) {                 // prev is not null
-                if (getQueueTime(prev, oper) > 0) {
-                    // qt += _queue_time[prev][oper];
-                    lot.addQueueTime(getQueueTime(prev, oper), prev, oper);
+                double queue_time = getQueueTime(prev, oper);
+                if (queue_time > 0) {
+                    lot.addQueueTime(queue_time, prev, oper);
                     prev = oper;
-                } else {
+                } else if (_queue_time.count(prev) != 0) {
                     std::string error_text =
                         std::to_string(prev) + " -> " + std::to_string(oper) +
                         " is invalid queue time combination, please check "
@@ -429,6 +435,8 @@ int route_t::calculateQueueTime(lot_t &lot)
                 retval |= TRAVERSE_FINISHED;
                 return retval;
             }
+        } else {
+            prev = lot.tmp_oper;
         }
     }
 

@@ -18,15 +18,16 @@ def filePreprocessing(path, files:dict, csv_config):
             csv_config[file_function] = []
         try:
             if(re.search(r'.csv', file_path) != None):
-                df = pd.read_csv(file_path, dtype=str)
+                df = pd.read_csv(file_path, dtype=str, encoding = "utf-8")
                 file_path = file_path.replace(r'.csv', '')
             elif(re.search(r'.xlsx', file_path) != None):
                 df = pd.read_excel(file_path, dtype=str)
                 file_path = file_path.replace(r'.xlsx', '')
         except ValueError as e:
-            print(e)
-            print(file_path)
-            exit(-1)
+            df = pd.read_csv(file_path, dtype=str, encoding='ISO-8859-1')
+            # print(e)
+            # print("file path : ", file_path)
+            # exit(-1)
 
 
         df = df.rename(columns=lambda x : x.strip())

@@ -359,17 +359,13 @@ std::map<std::string, std::string> lot_t::data()
     }
 
 
-    std::vector<std::string> &models = _all_models;
-    for (std::map<std::string, double>::iterator it = _uphs.begin();
-         it != _uphs.end(); ++it) {
-        models.push_back(it->first);
-    }
-
     std::vector<std::string> process_times;
+    std::vector<std::string> _can_run_models;
     for (std::map<std::string, double>::iterator it =
              _model_process_times.begin();
          it != _model_process_times.end(); it++) {
         process_times.push_back(std::to_string(it->second));
+        _can_run_models.push_back(it->first);
     }
 
     std::vector<std::string> uphs;
@@ -378,7 +374,8 @@ std::map<std::string, std::string> lot_t::data()
         uphs.push_back(std::to_string(it->second));
     }
 
-    d["CAN_RUN_MODELS"] = join(models, ",");
+    d["ALL_CAN_RUN_MODELS"] = join(_all_models, ",");
+    d["CAN_RUN_MODELS"] = join(_can_run_models, ",");
     d["PROCESS_TIME"] = join(process_times, ",");
     d["uphs"] = join(uphs, ",");
     d["code"] = join(code, ",");

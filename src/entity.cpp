@@ -170,7 +170,7 @@ entity_t::entity_t(map<string, string> elements,
             throw std::invalid_argument("No outplan time provided\n");
         _ptime = stod(elements["qty"]) / stod(elements["uph"]) * 60;
         _outplan_time = _recover_time =
-            (timeConverter()(elements["wip_outplan_time"]) - base_time) / 60;
+            (timeConverter()(elements["wip_outplan_time"]) - base_time) / 60.0;
     } else if (_status == IN_REPAIR) {
         _outplan_time = 0 + 2 * 60;
     } else if (_status == IDLE) {

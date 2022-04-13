@@ -51,6 +51,7 @@ set(TEST_SRC
         test_route/test_route_queue_time.cpp
         test_route/test_setup_cure_time.cpp
         test_route/test_get_cure_time.cpp
+        test_route/test_calculate_queue_time.cpp
 )
 
 add_executable(
