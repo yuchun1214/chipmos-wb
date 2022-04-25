@@ -70,20 +70,20 @@ TEST_P(test_setup_cure_time_t, cure_time_data)
         invalid_argument);
 }
 
-INSTANTIATE_TEST_SUITE_P(test_setup_cure_time,
-                         test_setup_cure_time_t,
-                         testing::Values(error_cure_time_test_case_t{0, "9v"},
-                                         error_cure_time_test_case_t{1,
-                                                                     "6y,qi"},
-                                         error_cure_time_test_case_t{2, "6y,6O,qi"},
-                                         error_cure_time_test_case_t{3, "6y,6O,qi,15l"},
-                                         error_cure_time_test_case_t{4, "9v,o,aa,3o3"},
-                                         error_cure_time_test_case_t{5, ",o,1l0"},
-                                         error_cure_time_test_case_t{6, ",o,1l0,3a"},
-                                         error_cure_time_test_case_t{7, ",xi,qoo,1l0,3a,"},
-                                         error_cure_time_test_case_t{8, ",o,1l0,sss,3a,xyz"},
-                                         error_cure_time_test_case_t{9, ",6o6,00l,,3a3"}
-                                    
-                                        
-    ));
+INSTANTIATE_TEST_SUITE_P(
+    test_setup_cure_time,
+    test_setup_cure_time_t,
+    testing::Values(error_cure_time_test_case_t{0, "9v"},
+                    error_cure_time_test_case_t{1, "6y,qi"},
+                    error_cure_time_test_case_t{2, "6y,6O,qi"},
+                    error_cure_time_test_case_t{3, "6y,6O,qi,15l"},
+                    error_cure_time_test_case_t{4, "9v,o,aa,3o3"},
+                    error_cure_time_test_case_t{5, ",o,1l0"},
+                    error_cure_time_test_case_t{6, ",o,1l0,3a"},
+                    error_cure_time_test_case_t{7, ",xi,qoo,1l0,3a,"},
+                    error_cure_time_test_case_t{8, ",o,1l0,sss,3a,xyz"},
+                    error_cure_time_test_case_t{9, ",6o6,00l,,3a3"}
+
+
+                    ));
 }  // namespace setup_cure_time

@@ -90,26 +90,8 @@ public:
     virtual bool isMachineRestrained(job_t *job,
                                      machine_t *machine,
                                      bool *care);
-};
 
-class machine_group_constraint_t : public machine_constraint_t
-{
-protected:
-    virtual std::vector<machine_t *> _getAvailableMachines(
-        std::string pin_pkg,
-        std::string pkg_id,
-        std::string customer,
-        int oper,
-        std::vector<machine_t *> machines);
-
-    std::vector<machine_t *> _getRestrainedMachine(
-        const std::string &val,
-        std::vector<constraint_entry_t> entries,
-        std::vector<machine_t *> machine_group);
-
-public:
-    std::vector<machine_t *> getAvailableMachines(job_t *job,
-                                                  std::vector<machine_t *>);
+    virtual ~machine_constraint_t() = default;
 };
 
 

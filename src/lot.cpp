@@ -322,12 +322,13 @@ std::map<std::string, std::string> lot_t::data()
     d["process_id"] = _process_id;
     d["bom_id"] = _bom_id;
     d["part_id"] = _part_id;
-    d["part_no"] = join(__tools, ",");
-    // try {
-    //     d["part_no"] = part_no();
-    // } catch (std::logic_error &e) {
-    //     d["part_no"] = "";
-    // }
+    d["all_part_no"] = join(__tools, ",");
+    // d["part_no"] = join(__tools, ",");
+    try {
+        d["part_no"] = part_no();
+    } catch (std::logic_error &e) {
+        d["part_no"] = "";
+    }
 
     d["qty"] = std::to_string(_qty);
     d["oper"] = std::to_string(_oper);

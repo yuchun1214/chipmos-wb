@@ -78,3 +78,5 @@ bool machine_constraint_r_t::_isMachineRestrainedForTheValue(
 
     return true;
 }
+
+machine_constraint_r_t::~machine_constraint_r_t() {}

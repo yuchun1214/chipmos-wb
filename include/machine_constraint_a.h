@@ -27,6 +27,7 @@ protected:
 
 public:
     explicit machine_constraint_a_t(csv_t csv);
+    virtual ~machine_constraint_a_t();
 };
 
 #endif

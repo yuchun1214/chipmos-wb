@@ -64,7 +64,7 @@ bool machine_constraint_a_t::_isMachineRestrained(
         }
 
         if (restrained_entity_pinpkg_entries.size()) {
-            retval &= _isMachineRestrainedForTheValue(
+            retval |= _isMachineRestrainedForTheValue(
                 restrained_entity_pinpkg_entries, machine);
             *care = true;
         } else {
@@ -97,3 +97,5 @@ bool machine_constraint_a_t::_isMachineRestrainedForTheValue(
     }
     return false;
 }
+
+machine_constraint_a_t::~machine_constraint_a_t() {}

@@ -97,5 +97,9 @@ INSTANTIATE_TEST_SUITE_P(
         queue_time_test_case_t{"MBGA393"s, "", 2200, true, true, 600,
                                TRAVERSE_DA_UNARRIVED},
         queue_time_test_case_t{"MBGA393"s, "", 2130, true, true, 270,
-                               TRAVERSE_DA_MVIN | TRAVERSE_FINISHED}));
+                               TRAVERSE_DA_MVIN | TRAVERSE_FINISHED},
+        queue_time_test_case_t{"MCON57"s, "", 2070, true, true, 180,
+                               TRAVERSE_DA_MVIN | TRAVERSE_DA_UNARRIVED},
+        queue_time_test_case_t{"MBGA387"s, "", 2200, true, true, 600,
+                               TRAVERSE_DA_UNARRIVED}));
 }  // namespace route_queue_time

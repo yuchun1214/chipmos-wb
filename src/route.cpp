@@ -324,6 +324,8 @@ int route_t::findStationIdx(std::string routename, int oper)
 int route_t::calculateQueueTime(lot_t &lot)
 {
     int retval = 0;
+    int prev, oper;
+    prev = lot.tmp_oper;
 
     if (lot.isTraversalFinish())
         return TRAVERSE_FINISHED;
@@ -339,6 +341,8 @@ int route_t::calculateQueueTime(lot_t &lot)
                             std::to_string(lot.tmp_oper) + ") on the route|" +
                             std::to_string(ERROR_INVALID_OPER_IN_ROUTE);
         throw std::logic_error(error);
+    } else {
+        ++idx;
     }
 
     // check if lot is in WB
@@ -354,7 +358,6 @@ int route_t::calculateQueueTime(lot_t &lot)
     // in this condition, idx need to plus 1, the lot start from next station
     if (_wb_stations.count(lot.tmp_oper) == 1) {
         if (lot.tmp_mvin) {        // if lot is in WB and has moved in,
-            idx += 1;              // move to next station
             lot.tmp_mvin = false;  // mvin = false
         } else {                   // lot is waiting at WB station
             lot.setTraverseFinished();
@@ -368,21 +371,24 @@ int route_t::calculateQueueTime(lot_t &lot)
         if (lot.tmp_mvin && lot.isSubLot()) {
             // lot is in DA and mvin and which is sublot
             lot.tmp_mvin = false;
-            // add Queue time
-            int next_oper = _routes[routename][++idx]->oper;
-            lot.addQueueTime(getQueueTime(lot.tmp_oper, next_oper),
-                             lot.tmp_oper, next_oper);
             retval |= TRAVERSE_DA_MVIN;
-        } else {  // lot is in D/A and hasn't moved in or which still is sublot
-            int next_oper = _routes[routename][++idx]->oper;
+        } else {  // lot is in D/A and hasn't moved into the machine or which
+                  // still is sublot
+            int next_oper = _routes[routename][idx]->oper;
             lot.addQueueTime(getQueueTime(lot.tmp_oper, next_oper),
                              lot.tmp_oper, next_oper);
             lot.tmp_oper = next_oper;
             return TRAVERSE_DA_ARRIVED;  // advance and dispatch
         }
     }
-
     lot.tmp_mvin = false;
+
+    // check if lots is in cure station
+    if (_cure_stations.count(lot.tmp_oper) == 1) {
+        lot.addQueueTime(
+            getCureTime(lot.processId(), lot.tmp_oper),
+            "Lot is currently at cure station, sum up the cure time");
+    }
 
 
     // traverse the route from the begining station idx to D/A or W/B or to the
@@ -390,29 +396,25 @@ int route_t::calculateQueueTime(lot_t &lot)
     // not being scheduled to process in W/B station -> it is totally wrong!
     // please check route list or the route.h define macro. maybe _wb_stations
     // doesn't contain the extra W/B stations
-    int oper;
-    int prev = 0;
     iter_range(_routes[routename], i, idx, _routes[routename].size())
     {
         oper = _routes[routename][i]->oper;
         if (_queue_time.count(oper)) {  // check if oper is a big station?
-            if (prev) {                 // prev is not null
-                double queue_time = getQueueTime(prev, oper);
-                if (queue_time > 0) {
-                    lot.addQueueTime(queue_time, prev, oper);
-                    prev = oper;
-                } else if (_queue_time.count(prev) != 0) {
-                    std::string error_text =
-                        std::to_string(prev) + " -> " + std::to_string(oper) +
-                        " is invalid queue time combination, please check "
-                        "queue_time's input file. |" +
-                        std::to_string(ERROR_INVALID_QUEUE_TIME_COMBINATION);
-
-                    throw std::logic_error(error_text);
-                }
-            } else {
+            double queue_time = getQueueTime(prev, oper);
+            if (queue_time > 0) {
+                lot.addQueueTime(queue_time, prev, oper);
                 prev = oper;
+            } else if (_queue_time.count(prev) !=
+                       0) {  // prev might be a samll station
+                std::string error_text =
+                    std::to_string(prev) + " -> " + std::to_string(oper) +
+                    " is invalid queue time combination, please check "
+                    "queue_time's input file. |" +
+                    std::to_string(ERROR_INVALID_QUEUE_TIME_COMBINATION);
+
+                throw std::logic_error(error_text);
             }
+
 
             if (_cure_stations.count(oper) != 0) {
                 string process_id = lot.processId();
@@ -435,8 +437,6 @@ int route_t::calculateQueueTime(lot_t &lot)
                 retval |= TRAVERSE_FINISHED;
                 return retval;
             }
-        } else {
-            prev = lot.tmp_oper;
         }
     }
 

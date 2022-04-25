@@ -2,12 +2,11 @@
 // Created by YuChunLin on 2021/11/22.
 //
 
-//
-// Created by YuChunLin on 2021/11/22.
-//
-
 #include <gtest/gtest.h>
 #include <string>
+
+#include "include/info.h"
+#include "test_machine_constraint_base.h"
 
 #define private public
 #define protected public
@@ -20,51 +19,34 @@
 
 using namespace std;
 
-struct testing_machine_constraint_a_case {
-    string entity_regex_str;
-    string restrained_model;
-    string entity_name;
-    string model_name;
-    bool out;
+class test_machine_constraint_a_t : public test_machine_constraint_suite_t
+{
 };
 
-class test_machine_constraint_a_t
-    : public testing::TestWithParam<testing_machine_constraint_a_case>
-{
-protected:
-    machine_constraint_a_t *mcs_a;
 
-    void SetUp() override;
-    void TearDown() override;
-};
-
-void test_machine_constraint_a_t::SetUp()
+TEST_P(test_machine_constraint_a_t, a)
 {
-    mcs_a = new machine_constraint_a_t();
-}
-
-void test_machine_constraint_a_t::TearDown()
-{
-    delete mcs_a;
-}
-
-TEST_P(test_machine_constraint_a_t, test_is_machine_restrained)
-{
+    bool care, ret;
     auto cs = GetParam();
-    regex re(cs.entity_regex_str);
-    bool ret_val = mcs_a->_isMachineRestrained(re, cs.restrained_model,
-                                               cs.entity_name, cs.model_name);
-    EXPECT_EQ(cs.out, ret_val);
+    init_job(cs);
+    init_machine(cs);
+    ret = mcs_a->isMachineRestrained(j, m, &care);
+    EXPECT_EQ(cs.out, care && ret);
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    machine_constraint_a,
-    test_machine_constraint_a_t,
-    testing::Values(testing_machine_constraint_a_case{R"(BB\w*)"s, "UTC3000"s,
-                                                      "BB556"s, "UTC3000"s,
-                                                      true},
-                    testing_machine_constraint_a_case{
-                        R"(BB5\w*)"s, "UTC3000"s, "BB656"s, "UTC3000"s, false},
-                    testing_machine_constraint_a_case{R"(BB5\w*)"s, "UTC2000"s,
-                                                      "BB556"s, "UTC3000"s,
-                                                      false}));
+// struct testing_machine_constraint_case_t {
+//     // job information
+//     string pin_pkg;
+//     string customer;
+//     int oper;
+//
+//     // machine information
+//     string machine_no;
+//     string model_name;
+//     bool out;
+// }
+INSTANTIATE_TEST_SUITE_P(machine_constraint_a,
+                         test_machine_constraint_a_t,
+                         testing::Values(testing_machine_constraint_case_t{
+                             "FBGA-96UEF", "ZJP", "P3T1GF40CBF-Z{YZ}", 2200,
+                             "BB544", "UTC2000", true}));
