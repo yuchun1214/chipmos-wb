@@ -4,6 +4,8 @@ import re
 import pandas as pd
 import argparse
 import copy
+import signal
+import subprocess as sp
 from datetime import datetime
 
 
@@ -100,6 +102,38 @@ def preprocess_entry(conf:dict):
         dfs.append(df)
     return dfs
 
+def select():
+    conf = pd.read_csv("config.csv")
+    indi = pd.read_csv("indicator.csv")
+
+    indi = indi.drop(indi[indi.Setup > 168].index)
+    indi["Utilization"] = indi["Utilization"].replace({'%':''}, regex=True)
+    indi["Utilization"] = indi["Utilization"].astype(float)
+
+    best = indi.nlargest(3, "Utilization").index.tolist()
+    conf = conf.loc[best]
+    conf.to_csv("config.csv", index=False)
+
+def run(cmd, timeout):
+    proc = sp.Popen(cmd.split())
+    try:
+        outs, errs = proc.communicate(timeout=timeout)
+    except sp.TimeoutExpired:
+        if os.name == 'posix':
+            proc.send_signal(signal.SIGTSTP)
+        else:
+            proc.send_signal(signal.SIGTERM)
+        outs, errs = proc.communicate()
+
+def exec(time_limit):
+    half_time = time_limit / 2
+    run('./main -f=config.csv', half_time)
+    indicator = sp.Popen('./indic')
+    indicator.wait()
+    select()
+    run('./main -f=config.csv', half_time)
+    indicator = sp.Popen('./indic')
+    indicator.wait()
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
@@ -109,9 +143,8 @@ if __name__ == '__main__':
             help="do not run the algorithm directly", 
             action="store_false")
 
-    exegroup.add_argument("-r", "--run",
-            help="run the algorithm directly",
-            action="store_true")
+    exegroup.add_argument("-r", "--run", type=int,
+            help="run the algorithm directly")
 
     plotgroup = arg_parser.add_mutually_exclusive_group()
     
@@ -131,3 +164,7 @@ if __name__ == '__main__':
 
     config = args.config
     csv_config_file_path = processing(json.load(open(config))) 
+
+    if args.run:
+        time_limit = args.run * 60
+        exec(time_limit)

@@ -1,4 +1,5 @@
 #include <chrono>
+#include <csignal>
 #include <cstdlib>
 #include <ctime>
 #include <exception>
@@ -48,6 +49,7 @@ char MESSAGE[] =
 
 argument_parser_t *parser = new argument_parser_t();
 
+bool stop = false;
 
 int main(int argc, const char **argv)
 {
@@ -74,6 +76,12 @@ int main(int argc, const char **argv)
         printf("Please give the --file argument");
         return 0;
     }
+
+#ifdef WIN32
+    signal(SIGTERM, [](int sig_num) { stop = true; });
+#else
+    signal(SIGTSTP, [](int sig_num) { stop = true; });
+#endif
 
     csv_t cfg(file_name, "r", true, true);
     // get the cfg size
