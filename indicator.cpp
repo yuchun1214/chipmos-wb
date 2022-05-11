@@ -26,6 +26,10 @@
 
 #define PATH_OUTPUT "indicator.csv"
 
+#define BASE_TIME "07:30"
+#define START_DATE "22-02-01"
+#define END_DATE "22-02-02"
+
 #define MAX(x, y) ((x) ^ (((x) ^ (y)) & -((x) < (y))))
 
 #define MIN(x, y) ((x) ^ (((x) ^ (y)) & -((x) > (y))))
@@ -72,7 +76,7 @@ int main()
     std::vector<time_t> rtime;
     for (int i = 0, size = conf.nrows(); i < size; ++i) {
         std::string rtimes = conf.getElements(i)["base_time"];
-        rtimes.replace(rtimes.find(" ") + 1, 5, "07:30");
+        rtimes.replace(rtimes.find(" ") + 1, 5, BASE_TIME);
         rtime.push_back(
             timeConverter(conf.getElements(i)["base_time"])(rtimes));
     }
@@ -115,7 +119,7 @@ int main()
         outfile_quantity("result/quantity_" + conf.getElements(dir)["no"] +
         ".csv");
         */
-        time_t base_start = 0, base_end = timeConverter("22-02-01")("22-02-02");
+        time_t base_start = 0, base_end = timeConverter(START_DATE)(END_DATE);
         int gqty = 0;
         time_t gtotal = 0;
         for (auto &cur : info) {
