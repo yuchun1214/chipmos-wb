@@ -199,7 +199,7 @@ void geneticAlgorithm(population_t *pop, int fd)
 
     char output_string[1024];
     int string_length = 0;
-    for (k = 0; k < pop->parameters.GENERATIONS; ++k) {
+    for (k = 0; k < pop->parameters.GENERATIONS && !stop; ++k) {
         for (int i = 0; i < pop->parameters.AMOUNT_OF_R_CHROMOSOMES;
              ++i) {  // for all chromosomes
             chromosomes[i].fitnessValue =
