@@ -29,6 +29,10 @@ typedef struct __arg_descritpion_t {
 class argument_parser_t
 {
 protected:
+    /**
+     * _arg_descritpions - A map with the name of an argument as the key and
+     * the arg_descritpion_t as the value.
+     */
     map<string, arg_descritpion_t *> _arg_descritpions;
     vector<arg_descritpion_t *> _description_list;
 
@@ -47,11 +51,33 @@ public:
         parse_argument_list(argc, argv);
     }
 
+    /**
+     * parse_argument_list() - Parse the argument list passed by argv
+     *
+     * The function parse the command line arguments and map them to
+     * a arg_descritpion_t.
+     * It throws exceptions with error messages if the arguemnt is invalid.
+     *
+     * @param argc : argc passed by main()
+     * @param argv : argv passed by main()
+     */
     void parse_argument_list(int argc, const char *argv[]);
 
 
     void print_arg_description();
 
+    /**
+     * add_args() - Create an new option for the arguments
+     *
+     * The function create an arg_descritpion_t with the content
+     * and the name passed in by function arguments.
+     * The created argument will be add into the map _arg_descritpions
+     * with its name as the key.
+     *
+     * @param dscrpt : The content for the arg_descritpion_t that will be
+     * created.
+     * @param arg_name : To name the argumnet
+     */
     void add_args(arg_descritpion_t dscrpt, vector<string> arg_name);
 
     enum ARG_TYPE get_type_of_arg(string arg_name);

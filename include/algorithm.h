@@ -11,6 +11,8 @@
 #include "include/machines.h"
 #include "include/population.h"
 
+extern bool stop;
+
 void prescheduling(machines_t *machines, lots_t *lots);
 
 int stage2Scheduling(machines_t *machines, lots_t *lots, double peak_period);

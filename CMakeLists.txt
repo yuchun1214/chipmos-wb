@@ -15,14 +15,20 @@ add_executable(
     main 
     main.cpp)
 
+add_executable(
+	indic
+	indicator.cpp)
+
 add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(tests)
 
 if(WIN32)
     target_link_libraries(main src pgalib -static-libgcc -static-libstdc++)
+    target_link_libraries(indic src)
 else()
     target_link_libraries(main src pgalib pthread)
+    target_link_libraries(indic src)
 endif()
 
 # if(WIN32)
