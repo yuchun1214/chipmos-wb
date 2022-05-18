@@ -34,6 +34,7 @@ private:
     double _intime;
     double _setup_time;
     double _ptime;
+    double _ent_weight;
     enum machine_status _status;
     std::string _entity_name;
     std::string _model_name;
