@@ -156,6 +156,7 @@ void machines_t::addPrescheduledJob(job_t *job)
     job->list.ptr_derived_object = job;
     string machine_no(job->base.machine_no.data.text);
     machine_ops->add_job(&_machines.at(machine_no)->base, &job->list);
+    job->base.current_machine = _machines.at(machine_no);
 }
 
 void machines_t::prescheduleJobs()
@@ -799,6 +800,9 @@ bool machines_t::_canJobRunOnTheMachine(job_t *job,
     string model(machine->model_name.data.text);
     string cust(job->customer.data.text);
     string entity_name(machine->base.machine_no.data.text);
+
+    bool ret = true, care = true;
+    ret = _mcs_a->isMachineRestrained(job, machine, &care);
 
     return _isMachineLocationAvailableForJob(lot_number, location) &&
            (!strict_model || _isModelAvailableForJob(lot_number, model)) &&
