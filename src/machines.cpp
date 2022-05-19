@@ -210,6 +210,8 @@ int machines_t::_collectScheduledJobs(machine_t *machine,
 
 bool machinePtrComparison(machine_t *m1, machine_t *m2)
 {
+    if (m1->base.available_time == m2->base.available_time)
+        return m1->setup_weight < m2->setup_weight;
     return m1->base.available_time < m2->base.available_time;
 }
 

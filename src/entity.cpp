@@ -42,6 +42,7 @@ entity_t::entity_t(map<string, string> elements,
     _entity_name = elements["entity"];
     _model_name = elements["model"];
     _location = elements["location"];
+    _ent_weight = stod(elements["ent_weight"]);
     _setup_time = 0;
     _ptime = 0;
     if (elements["STATUS"].compare("SETUP") == 0)
@@ -210,6 +211,7 @@ machine_t entity_t::machine()
                   .total_completion_time = 0,
                   .quality = 0,
                   .setup_times = 0,
+                  .setup_weight = _ent_weight,
                   .ptr_derived_object = nullptr};
 
     machine.current_job.base.end_time = _recover_time;

@@ -43,6 +43,7 @@ typedef struct __machine_t {
     double total_completion_time;
     double quality;
     int setup_times;
+    double setup_weight;
     void *ptr_derived_object;
 } machine_t;
 
