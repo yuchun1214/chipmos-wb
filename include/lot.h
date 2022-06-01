@@ -62,7 +62,7 @@ protected:
     std::string _bom_id;
     std::string _part_id;
     std::string _pkg_id;
-    // std::string _part_no;
+    std::string _part_no;
 
 
     std::string _urgent;
@@ -143,6 +143,8 @@ protected:
 
     void setSprHot(std::string);
     void setSprHot(bool);
+
+    void _setToolType(std::string tool_type);
 
 public:
     int tmp_oper;
@@ -669,10 +671,12 @@ inline void lot_t::setBomId(std::string bom_id)
 inline std::string lot_t::part_no()
 {
     if (_tools.size() > 0) {
-        return _tools.begin()->first;
+        if (_part_no.length())
+            return _part_no;
+        else
+            return _tools.begin()->first;
     } else {
         return "";
-        // throw std::logic_error("The part_no hasn't been set");
     }
 }
 
@@ -860,14 +864,26 @@ inline void lot_t::setPartId(std::string partid)
 
 inline void lot_t::setPartNo(std::string part_no)
 {
-    if (_tools.count(part_no) == 0) {
-        _tools[part_no] = 0;
-        __tools.push_back(part_no);
+    if (part_no.length()) {
+        if (_tools.count(part_no) == 0) {
+            _tools[part_no] = 0;
+            __tools.push_back(part_no);
+        }
+        _part_no = part_no;
     }
-    // else {
-    //     std::cerr << _lot_number << "set part no(" << part_no << ")twice"
-    //               << std::endl;
-    // }
+}
+
+inline void lot_t::_setToolType(std::string part_no_type)
+{
+    std::string part_no("");
+    for (auto it = _tools.begin(); it != _tools.end(); ++it) {
+        if (it->second != 0 &&
+            it->first.find(part_no_type) != std::string::npos) {
+            part_no = it->first;
+            break;
+        }
+    }
+    setPartNo(part_no);
 }
 
 
@@ -878,6 +894,7 @@ inline std::string lot_t::part_id()
 
 inline int lot_t::setAmountOfTools(std::string part_number, int number_of_tools)
 {
+    setPartNo(part_number);
     _tools[part_number] = number_of_tools;
     return number_of_tools;
 }
@@ -906,22 +923,16 @@ inline void lot_t::setAmountOfWires(int amount)
 inline bool lot_t::isModelValid(std::string model)
 {
     std::string _part_no = part_no();
+    bool is_utc123000s =
+        model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
+        model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
+        model.compare("UTC3000") == 0;
     if (_part_no.find("A0801") !=
         std::string::npos) {  // if part_no contains A0801
-        if (model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
-            model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
-            model.compare("UTC3000") == 0) {
-            return true;
-        } else
-            return false;
+        return is_utc123000s;
     } else if (_part_no.find("A0803") !=
                std::string::npos) {  // if part_no contains A0803
-        if (model.compare("UTC1000") != 0 || model.compare("UTC1000S") != 0 ||
-            model.compare("UTC2000") != 0 || model.compare("UTC2000S") != 0 ||
-            model.compare("UTC3000") != 0) {
-            return true;
-        } else
-            return false;
+        return !is_utc123000s;
     }
     return true;
 }
@@ -939,6 +950,26 @@ inline void lot_t::setCanRunModel(std::string model)
 
 inline void lot_t::setCanRunModels(std::vector<std::string> models)
 {
+    // use models to decide the part_no
+    // int a0801 = 0, a0803 = 0;
+    // foreach (models, i) {
+    //     if (models[i].compare("UTC1000") == 0 ||
+    //         models[i].compare("UTC1000S") == 0 ||
+    //         models[i].compare("UTC2000") == 0 ||
+    //         models[i].compare("UTC2000S") == 0 ||
+    //         models[i].compare("UTC3000") == 0) {
+    //         ++a0801;
+    //     } else {
+    //         ++a0803;
+    //     }
+    // }
+
+    // if (a0801 > a0803) {
+    //     _setToolType("A0801");
+    // } else if (a0803 > a0801) {
+    //     _setToolType("A0803");
+    // }
+    _setToolType("A0801");
     foreach (models, i) {
         if (isModelValid(models[i])) {
             _uphs[models[i]] = 0;
