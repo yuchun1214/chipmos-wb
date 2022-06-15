@@ -931,8 +931,8 @@ inline bool lot_t::isModelValid(std::string model)
                 model.compare("UTC3000") == 0);
     } else if (_part_no.find("A0803") !=
                std::string::npos) {  // if part_no contains A0803
-        return (model.compare("UTC1000") != 0 || model.compare("UTC1000S") != 0 ||
-                model.compare("UTC2000") != 0 || model.compare("UTC2000S") != 0 ||
+        return (model.compare("UTC1000") != 0 && model.compare("UTC1000S") != 0 &&
+                model.compare("UTC2000") != 0 && model.compare("UTC2000S") != 0 &&
                 model.compare("UTC3000") != 0);
     }
     return true;
