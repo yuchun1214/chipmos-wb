@@ -922,17 +922,18 @@ inline void lot_t::setAmountOfWires(int amount)
 
 inline bool lot_t::isModelValid(std::string model)
 {
+    /* _setToolType() would determine value of _part_no */
     std::string _part_no = part_no();
-    bool is_utc123000s =
-        model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
-        model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
-        model.compare("UTC3000") == 0;
     if (_part_no.find("A0801") !=
         std::string::npos) {  // if part_no contains A0801
-        return is_utc123000s;
+        return (model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
+                model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
+                model.compare("UTC3000") == 0);
     } else if (_part_no.find("A0803") !=
                std::string::npos) {  // if part_no contains A0803
-        return !is_utc123000s;
+        return (model.compare("UTC1000") != 0 || model.compare("UTC1000S") != 0 ||
+                model.compare("UTC2000") != 0 || model.compare("UTC2000S") != 0 ||
+                model.compare("UTC3000") != 0);
     }
     return true;
 }
@@ -959,12 +960,7 @@ inline void lot_t::setCanRunModels(std::vector<std::string> models)
             models[i].compare("UTC2000S") == 0 ||
             models[i].compare("UTC3000") == 0);
     }
-
-    if (a0801) {
-        _setToolType("A0801");
-    } else {
-        _setToolType("A0803");
-    }
+    _setToolType(a0801 ? "A0801" : "A0803");
 
     foreach (models, i) {
         if (isModelValid(models[i])) {
