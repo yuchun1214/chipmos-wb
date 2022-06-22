@@ -404,13 +404,14 @@ vector<lot_t> lots_t::queueTimeAndQueue(vector<lot_t> lots,
                 unfinished[i].addLog(what[0],
                                      static_cast<ERROR_T>(stoi(what[1])));
                 faulty_lots.push_back(unfinished[i]);
-            }
+            } 
         }
         unfinished = das.distributeProductionCapacity();
         das.removeAllLots();
     }
 
     dontcare += das.getParentLots();
+    dontcare += das.get_all_remaining_lots();
     _parent_lots_and_sublots = das.getParentLotAndSubLots();
 
     return finished;
@@ -723,7 +724,6 @@ std::vector<lot_t *> lots_t::createLots(
     route_t routes;
     setupRoute(routelist_filename, queue_time_filename, eim_lot_size_filename,
                cure_time_filename, routes);
-
 
     // start creating lots
     readWip(wip_file_name, alllots, faulty_lots);

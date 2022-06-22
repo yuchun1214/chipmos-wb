@@ -104,6 +104,8 @@ public:
     void decrementProductionCapacity(lot_t &lot);
 
     std::map<std::string, std::vector<std::string> > getParentLotAndSubLots();
+
+    std::vector<lot_t> get_all_remaining_lots();
 };
 
 inline std::vector<lot_t> da_stations_t::getParentLots()
