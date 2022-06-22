@@ -952,15 +952,20 @@ inline void lot_t::setCanRunModel(std::string model)
 inline void lot_t::setCanRunModels(std::vector<std::string> models)
 {
     // use models to decide the part_no
-    int a0801 = 0;
+    int a0801 = 0, a0803 = 0;
     foreach (models, i) {
         a0801 +=  (models[i].compare("UTC1000") == 0 ||
             models[i].compare("UTC1000S") == 0 ||
             models[i].compare("UTC2000") == 0 ||
             models[i].compare("UTC2000S") == 0 ||
             models[i].compare("UTC3000") == 0);
+        a0803 +=  !(models[i].compare("UTC1000") == 0 ||
+            models[i].compare("UTC1000S") == 0 ||
+            models[i].compare("UTC2000") == 0 ||
+            models[i].compare("UTC2000S") == 0 ||
+            models[i].compare("UTC3000") == 0);
     }
-    _setToolType(a0801 ? "A0801" : "A0803");
+    _setToolType(a0801 > a0803? "A0801" : "A0803");
 
     foreach (models, i) {
         if (isModelValid(models[i])) {
