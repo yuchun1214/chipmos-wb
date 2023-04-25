@@ -367,7 +367,13 @@ machines_t::getModelLocations()
 
 inline std::string machines_t::getModelByEntityName(std::string entity_name)
 {
-    return std::string(_machines.at(entity_name)->model_name.data.text);
+    try {
+        return std::string(_machines.at(entity_name)->model_name.data.text);
+    } catch (std::out_of_range &e) {
+        std::string err_msg =
+            "Error : entity name [" + entity_name + "] not found " + e.what();
+        throw std::out_of_range(err_msg);
+    }
 }
 
 inline const std::vector<machine_t *> machines_t::scheduledMachines()

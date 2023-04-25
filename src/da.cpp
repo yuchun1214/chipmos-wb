@@ -33,10 +33,21 @@ void da_stations_t::setFcst(csv_t _fcst)
             remain = fcst;  // FIXME : remain = fcst - act may less than 0
 
             if (_da_stations_container.count(bd_id) != 0) {
-                da_station_t temp = _da_stations_container.at(bd_id);
-                fcst += temp.fcst;
-                act += temp.act;
-                remain = fcst;
+                try {
+                    da_station_t temp = _da_stations_container.at(bd_id);
+                    fcst += temp.fcst;
+                    act += temp.act;
+                    remain = fcst;
+                } catch (out_of_range &e) {
+                    std::string error_msg;
+                    error_msg +=
+                        std::string(
+                            "In function da_stations_t::setFcst trigger "
+                            "exception : ") +
+                        e.what() + " _da_stations_container can't find " +
+                        bd_id + " this bd_id";
+                    throw(std::out_of_range(error_msg));
+                }
             }
             _da_stations_container[bd_id] =
                 da_station_t{.fcst = fcst,
@@ -219,9 +230,11 @@ void da_stations_t::decrementProductionCapacity(lot_t &lot)
     }
 }
 
-std::vector<lot_t > da_stations_t::get_all_remaining_lots(){
+std::vector<lot_t> da_stations_t::get_all_remaining_lots()
+{
     std::vector<lot_t> lots;
-    for(auto it = _da_stations_container.begin(); it != _da_stations_container.end(); ++it){
+    for (auto it = _da_stations_container.begin();
+         it != _da_stations_container.end(); ++it) {
         lots += it->second.remaining;
     }
 

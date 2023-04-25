@@ -155,7 +155,11 @@ void machines_t::addPrescheduledJob(job_t *job)
     job->base.ptr_derived_object = job;
     job->list.ptr_derived_object = job;
     string machine_no(job->base.machine_no.data.text);
-    machine_ops->add_job(&_machines.at(machine_no)->base, &job->list);
+    try {
+        machine_ops->add_job(&_machines.at(machine_no)->base, &job->list);
+    } catch (const std::out_of_range &e) {
+        throw std::invalid_argument("[" + machine_no + "] is not found");
+    }
     job->base.current_machine = _machines.at(machine_no);
 }
 
@@ -229,8 +233,8 @@ void machines_t::addGroupJobs(string recipe, vector<job_t *> jobs)
         cerr << "Warning : you add group of jobs twice, recipe is [" << recipe
              << "]" << endl;
 
-    string part_no = string(jobs.at(0)->part_no.data.text);
-    string part_id = string(jobs.at(0)->part_id.data.text);
+    string part_no = string(jobs[0]->part_no.data.text);
+    string part_id = string(jobs[0]->part_id.data.text);
     foreach (jobs, i) {
         jobs[i]->base.ptr_derived_object = jobs[i];
         jobs[i]->list.ptr_derived_object = jobs[i];
@@ -486,6 +490,7 @@ bool machines_t::_isThereAnyUnusedResource(
         resources = _resources.at(resource_name);
     } catch (out_of_range &e) {
         cout << "Resource name : " << resource_name << endl;
+        throw e;
     }
     vector<ares_t *> result;
     foreach (resources, i) {
@@ -575,7 +580,17 @@ void machines_t::reconsiderJobs()
                 // take out the jobs
                 vector<job_t *> jobs =
                     _jobsExceedDispatchingThreshold(_v_machines[i], threshold);
-                _dispatch_groups.at(bd_id)->unscheduled_jobs += jobs;
+
+                try {
+                    _dispatch_groups.at(bd_id)->unscheduled_jobs += jobs;
+                } catch (out_of_range &e) {
+                    string msg =
+                        "exception occurs at machines.cpp:reconsiderJob. The "
+                        "_dispatch_groups can't find " +
+                        bd_id;
+                    cerr << msg << endl;
+                    throw msg;
+                }
             }
         }
     }
@@ -696,14 +711,18 @@ void machines_t::distributeTools()
         }
 
         // calculate
-        data = _distributeAResource(_number_of_tools.at(it->first), data);
+        try {
+            data = _distributeAResource(_number_of_tools.at(it->first), data);
 
-        // setup
-        for (map<string, int>::iterator it2 = data.begin(); it2 != data.end();
-             it2++) {
-            string part_id = it2->first;
-            string key = part_no + "_" + part_id;
-            _tool_wire_jobs_groups.at(key)->number_of_tools = it2->second;
+            // setup
+            for (map<string, int>::iterator it2 = data.begin();
+                 it2 != data.end(); it2++) {
+                string part_id = it2->first;
+                string key = part_no + "_" + part_id;
+                _tool_wire_jobs_groups.at(key)->number_of_tools = it2->second;
+            }
+        } catch (...) {
+            throw std::runtime_error("Error in distributeTools");
         }
     }
 }
@@ -725,14 +744,18 @@ void machines_t::distributeWires()
         }
 
         // calculate
-        data = _distributeAResource(_number_of_wires.at(it->first), data);
+        try {
+            data = _distributeAResource(_number_of_wires.at(it->first), data);
 
-        // setup
-        for (map<string, int>::iterator it2 = data.begin(); it2 != data.end();
-             it2++) {
-            string part_no = it2->first;
-            string key = part_no + "_" + part_id;
-            _tool_wire_jobs_groups.at(key)->number_of_wires = it2->second;
+            // setup
+            for (map<string, int>::iterator it2 = data.begin();
+                 it2 != data.end(); it2++) {
+                string part_no = it2->first;
+                string key = part_no + "_" + part_id;
+                _tool_wire_jobs_groups.at(key)->number_of_wires = it2->second;
+            }
+        } catch (...) {
+            throw std::runtime_error("Error in distributeWires");
         }
     }
 
@@ -767,8 +790,13 @@ bool machines_t::_isMachineDedicatedForJob(string lot_number,
         if (_dedicate_machines.count(cust) == 0) {
             cust = "others"s;
         }
-        return _dedicate_machines.at(cust).count(entity_name) != 0 &&
-               _dedicate_machines.at(cust).at(entity_name);
+        try {
+            return _dedicate_machines.at(cust).count(entity_name) != 0 &&
+                   _dedicate_machines.at(cust).at(entity_name);
+
+        } catch (...) {
+            throw std::runtime_error("Error in _isMachineDedicatedForJob");
+        }
     }
     return false;
 }
@@ -1010,12 +1038,19 @@ void machines_t::chooseMachinesForGroups()
     selected_machines = vector<string>(selected_machines_set.begin(),
                                        selected_machines_set.end());
     foreach (selected_machines, i) {
-        machine_t *machine = _machines.at(selected_machines[i]);
-        string model_name(machine->model_name.data.text);
-        if (selected_model_statistic.count(model_name) == 0) {
-            selected_model_statistic[model_name] = 0;
+        try {
+            machine_t *machine = _machines.at(selected_machines[i]);
+            string model_name(machine->model_name.data.text);
+            if (selected_model_statistic.count(model_name) == 0) {
+                selected_model_statistic[model_name] = 0;
+            }
+            selected_model_statistic[model_name] += 1;
+        } catch (out_of_range &e) {
+            string machine_name = selected_machines[i];
+            string err_msg =
+                "_machine can't locate the machine with name: " + machine_name;
+            throw runtime_error(err_msg);
         }
-        selected_model_statistic[model_name] += 1;
     }
     // cout << "Determined Machine Statistic" << endl;
     // for (map<string, int>::iterator it = selected_model_statistic.begin();
@@ -1200,6 +1235,12 @@ void machines_t::_linkMachineToAJob(job_t *job)
 
     // FIXME : delete the variables
     // string part_no(job->part_no.data.text);
+    if (_job_can_run_machines.find(lot_number) == _job_can_run_machines.end()) {
+        throw std::runtime_error(
+            "Can't find the lot number in the map container, "
+            "_job_can_run_machines");
+    }
+
     vector<string> can_run_machines = _job_can_run_machines.at(lot_number);
     process_time_t *process_times = nullptr;
     process_times = (process_time_t *) malloc(sizeof(process_time_t) *
@@ -1376,10 +1417,16 @@ ares_t *machines_t::_availableResource(
     std::map<std::string, std::vector<ares_t *>> resource,
     std::string name)
 {
-    std::vector<ares_t *> resources = resource.at(name);
-    foreach (resources, i) {
-        if (!resources[i]->used)
-            return resources[i];
+    try {
+        std::vector<ares_t *> resources = resource.at(name);
+        foreach (resources, i) {
+            if (!resources[i]->used)
+                return resources[i];
+        }
+    } catch (std::out_of_range &e) {
+        string err_msg = "No resource found for " + name;
+        throw std::out_of_range(err_msg);
     }
+
     return nullptr;
 }

@@ -65,8 +65,15 @@ void entities_t::_readDedicateMachines(std::string filename)
         row = csv.getElements(i);
         // _dedicate_machines[row.at("customer") + "_" + row.at("entity")] =
         // row.at("pass").compare("Y") == 0 ? true : false;
-        _dedicate_machines[row.at("customer")][row.at("entity")] =
-            row.at("pass").compare("Y") == 0;
+        try {
+            _dedicate_machines[row.at("customer")][row.at("entity")] =
+                row.at("pass").compare("Y") == 0;
+        } catch (out_of_range &e) {
+            std::cerr << "excpetion has been thrown in entities.cpp: "
+                         "_readDedicateMachines()"
+                      << e.what() << std::endl;
+            throw e;
+        }
     }
     csv.close();
 }

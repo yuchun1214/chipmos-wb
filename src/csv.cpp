@@ -404,18 +404,44 @@ std::vector<std::string> csv_t::getRow(int row)
         idx = (int) _data.size() + row;
     } else
         idx = row;
-    return _data.at(idx);
+    try {
+        return _data.at(idx);
+    } catch (std::out_of_range &e) {
+        std::string err_msg = e.what();
+        err_msg += std::to_string(row) +
+                   "is out of range"
+                   " in the exist dataframe";
+        throw std::out_of_range(err_msg);
+    }
 }
 
 std::string csv_t::getElement(std::string _col, int row)
 {
     uint16_t col = _head[_col];
-    return getRow(row).at(col);
+    try {
+        return getRow(row).at(col);
+    } catch (std::out_of_range &e) {
+        std::string err_msg = e.what();
+        err_msg += std::to_string(col) +
+                   "is out of range"
+                   " in the exist dataframe. The exception is thrown "
+                   "in the function getElement(std::string, int)";
+        throw std::out_of_range(err_msg);
+    }
 }
 
 std::string csv_t::getElement(int col, int row)
 {
-    return getRow(row).at(col);
+    try {
+        return getRow(row).at(col);
+    } catch (std::out_of_range &e) {
+        std::string err_msg = e.what();
+        err_msg += std::to_string(col) +
+                   "is out of range"
+                   " in the exist dataframe. The exception is thrown "
+                   "in the function getElement(int, int)";
+        throw std::out_of_range(err_msg);
+    }
 }
 
 std::map<std::string, std::string> csv_t::getElements(int row)

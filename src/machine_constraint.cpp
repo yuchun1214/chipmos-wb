@@ -85,12 +85,20 @@ vector<constraint_entry_t> machine_constraint_t::getConstraintEntries(
     if (entries.count(cust) == 0)
         return out;
 
-    vector<constraint_entry_t> possible_entries = entries.at(cust);
-    foreach (possible_entries, i) {
-        if (regex_match(val, possible_entries[i].check_val)) {
-            out.push_back(possible_entries[i]);
+    try {
+        vector<constraint_entry_t> possible_entries = entries.at(cust);
+        foreach (possible_entries, i) {
+            if (regex_match(val, possible_entries[i].check_val)) {
+                out.push_back(possible_entries[i]);
+            }
         }
+    } catch (const std::out_of_range &oor) {
+        cout << "Out of Range error occurs at machine_constraint.cpp: "
+                "getConstraintEntries "
+             << oor.what() << '\n';
+        return out;
     }
+
     return out;
 }
 
@@ -106,8 +114,15 @@ bool machine_constraint_t::isMachineRestrained(job_t *job,
         if (_table.count(job->oper) == 0) {
             return true;
         } else {
-            return _isMachineRestrained(_table.at(job->oper), job, machine,
-                                        care);
+            try {
+                return _isMachineRestrained(_table.at(job->oper), job, machine,
+                                            care);
+            } catch (const std::out_of_range &oor) {
+                cout << "Out of Range error occurs at machine_constraint.cpp: "
+                        "isMachineRestrained "
+                     << oor.what() << '\n';
+                return true;
+            }
         }
     } else {
         return false;

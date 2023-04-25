@@ -107,7 +107,13 @@ void lots_t::readLocation(string filename,
             lots[i].setLastLocation("TA-4F");
         else if (!lots[i].getLastEntity().empty())
             // TODO exception last entity not found
-            lots[i].setLastLocation(loc.at(lots[i].getLastEntity()));
+            try {
+                lots[i].setLastLocation(loc.at(lots[i].getLastEntity()));
+            } catch (out_of_range &e) {
+                cout << "last entity not found: " << lots[i].getLastEntity()
+                     << endl;
+                throw e;
+            }
     }
 
     return;
@@ -404,7 +410,7 @@ vector<lot_t> lots_t::queueTimeAndQueue(vector<lot_t> lots,
                 unfinished[i].addLog(what[0],
                                      static_cast<ERROR_T>(stoi(what[1])));
                 faulty_lots.push_back(unfinished[i]);
-            } 
+            }
         }
         unfinished = das.distributeProductionCapacity();
         das.removeAllLots();

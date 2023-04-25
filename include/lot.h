@@ -905,7 +905,12 @@ inline int lot_t::setAmountOfTools(std::map<std::string, int> number_of_tools)
     std::map<std::string, int> tls;
     for (auto it = _tools.begin(); it != _tools.end(); ++it) {
         if (number_of_tools.count(it->first) != 0) {
-            it->second = number_of_tools.at(it->first);  // safe, check it above
+            try {
+                it->second = number_of_tools.at(it->first);
+            } catch (std::out_of_range &e) {
+                std::cout << "out_of_range exception at file lot.h line 921"
+                          << e.what() << std::endl;
+            }
             sum += it->second;
             tls[it->first] = it->second;
         }
@@ -926,14 +931,16 @@ inline bool lot_t::isModelValid(std::string model)
     std::string _part_no = part_no();
     if (_part_no.find("A0801") !=
         std::string::npos) {  // if part_no contains A0801
-        return (model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
-                model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
-                model.compare("UTC3000") == 0);
+        return (
+            model.compare("UTC1000") == 0 || model.compare("UTC1000S") == 0 ||
+            model.compare("UTC2000") == 0 || model.compare("UTC2000S") == 0 ||
+            model.compare("UTC3000") == 0);
     } else if (_part_no.find("A0803") !=
                std::string::npos) {  // if part_no contains A0803
-        return (model.compare("UTC1000") != 0 && model.compare("UTC1000S") != 0 &&
-                model.compare("UTC2000") != 0 && model.compare("UTC2000S") != 0 &&
-                model.compare("UTC3000") != 0);
+        return (
+            model.compare("UTC1000") != 0 && model.compare("UTC1000S") != 0 &&
+            model.compare("UTC2000") != 0 && model.compare("UTC2000S") != 0 &&
+            model.compare("UTC3000") != 0);
     }
     return true;
 }
@@ -954,18 +961,18 @@ inline void lot_t::setCanRunModels(std::vector<std::string> models)
     // use models to decide the part_no
     int a0801 = 0, a0803 = 0;
     foreach (models, i) {
-        a0801 +=  (models[i].compare("UTC1000") == 0 ||
-            models[i].compare("UTC1000S") == 0 ||
-            models[i].compare("UTC2000") == 0 ||
-            models[i].compare("UTC2000S") == 0 ||
-            models[i].compare("UTC3000") == 0);
-        a0803 +=  !(models[i].compare("UTC1000") == 0 ||
-            models[i].compare("UTC1000S") == 0 ||
-            models[i].compare("UTC2000") == 0 ||
-            models[i].compare("UTC2000S") == 0 ||
-            models[i].compare("UTC3000") == 0);
+        a0801 += (models[i].compare("UTC1000") == 0 ||
+                  models[i].compare("UTC1000S") == 0 ||
+                  models[i].compare("UTC2000") == 0 ||
+                  models[i].compare("UTC2000S") == 0 ||
+                  models[i].compare("UTC3000") == 0);
+        a0803 += !(models[i].compare("UTC1000") == 0 ||
+                   models[i].compare("UTC1000S") == 0 ||
+                   models[i].compare("UTC2000") == 0 ||
+                   models[i].compare("UTC2000S") == 0 ||
+                   models[i].compare("UTC3000") == 0);
     }
-    _setToolType(a0801 > a0803? "A0801" : "A0803");
+    _setToolType(a0801 > a0803 ? "A0801" : "A0803");
 
     foreach (models, i) {
         if (isModelValid(models[i])) {
@@ -984,7 +991,13 @@ inline bool lot_t::setUph(std::string model, double uph)
         _model_process_times.erase(model);
         return false;
     } else {
-        _uphs.at(model) = uph;
+        try {
+            _uphs.at(model) = uph;
+        } catch (std::out_of_range &e) {
+            std::string msg = std::string("out_of_range exception for model") +
+                              model + " at file lot.h line 994 " + e.what();
+            throw std::out_of_range(msg);
+        }
         _model_process_times[model] = _qty * 60 / uph;
     }
     return true;

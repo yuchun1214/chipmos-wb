@@ -155,6 +155,10 @@ public:
      */
     inline card_t getModels(std::string recipe, int oper) noexcept(false)
     {
+        if (_models.find(recipe) == _models.end())
+            throw std::runtime_error("recipe not found");
+        if (_models.at(recipe).find(oper) == _models.at(recipe).end())
+            throw std::runtime_error("oper not found");
         return _models.at(recipe).at(oper);
     }
 

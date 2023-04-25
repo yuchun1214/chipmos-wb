@@ -140,8 +140,12 @@ void route_t::setQueueTime(csv_t queue_time_df)
             } else {
                 _first = std::stoi(headers[j]);
             }
+            if (elements.find(headers[j]) == elements.end())
+                throw std::out_of_range(
+                    "queue_time file doesn't contain header " +
+                    std::string(headers[j]));
 
-            if (!isNumeric()(elements.at(headers.at(j)))) {
+            if (!isNumeric()(elements.at(headers[j]))) {
                 _second = -1;
                 error_flag = true;
                 invalid_characters.push_back(elements.at(headers.at(j)));
@@ -302,10 +306,16 @@ int route_t::findStationIdx(std::string routename, int oper)
     //     return _oper_index[routename][oper];
     // return -1;
     int idx = -1;
-    _oper_index.count(routename) && _oper_index.at(routename).count(oper) &&
-        (idx = _oper_index.at(routename).at(oper));
+    try {
+        _oper_index.count(routename) && _oper_index.at(routename).count(oper) &&
+            (idx = _oper_index.at(routename).at(oper));
 
-    return idx;
+        return idx;
+    } catch (std::out_of_range &e) {
+        string err_msg =
+            "Can't find the oper " + to_string(oper) + " in route " + routename;
+        throw err_msg + e.what();
+    }
 }
 
 
